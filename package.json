@@ -16,7 +16,12 @@
     "node": ">=6.4.0"
   },
   "scripts": {
-    "lint": "eslint ."
+    "test": "nyc --reporter=text --reporter=html ava",
+    "clean": "rm -rf coverage .cache",
+    "lint": "eslint --ignore-path .gitignore .",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls",
+    "pretest": "npm run clean",
+    "posttest": "npm run lint"
   },
   "keywords": [
     "studentbostäder",
@@ -30,8 +35,11 @@
     "yargs": "^5.0.0"
   },
   "devDependencies": {
+    "ava": "^0.16.0",
+    "coveralls": "^2.11.12",
     "eslint": "^3.3.1",
     "eslint-config-airbnb-base": "^5.0.3",
-    "eslint-plugin-import": "^1.13.0"
+    "eslint-plugin-import": "^1.13.0",
+    "nyc": "^8.1.0"
   }
 }
