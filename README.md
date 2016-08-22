@@ -1,5 +1,10 @@
 # apartmentor
 
+[![Build Status](https://img.shields.io/travis/maxdavidson/apartmentor/master.svg)](https://travis-ci.org/maxdavidson/apartmentor)
+[![Coverage Status](https://img.shields.io/coveralls/maxdavidson/apartmentor/master.svg)](https://coveralls.io/github/maxdavidson/apartmentor?branch=master)
+[![Dependency Status](https://img.shields.io/david/maxdavidson/apartmentor.svg)](https://david-dm.org/maxdavidson/apartmentor)
+[![devDependency Status](https://img.shields.io/david/dev/maxdavidson/apartmentor.svg)](https://david-dm.org/maxdavidson/apartmentor?type=dev)
+
 Search for apartments on Studentbostäder.
 
 ## API
