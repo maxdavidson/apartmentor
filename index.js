@@ -2,6 +2,7 @@ const fetch = require('node-fetch');
 const googl = require('goo.gl');
 const querystring = require('querystring');
 const yargs = require('yargs')
+const vm = require('vm');
 const { JSONStorage } = require('node-localstorage');
 const cache = new JSONStorage('./.cache');
 
@@ -24,23 +25,22 @@ if (GOOGLE_SERVER_KEY) {
   googl.setKey(GOOGLE_SERVER_KEY);
 }
 
-(function findApartments() {
-  const query = querystring.stringify({
-    actionId: '',
-    omraden: '',
-    egenskaper: 'SNABB',
-    objektType: '',
-    callback: '',
-    'widgets[]': 'objektlista@lagenheter',
-    _: 1471690077367
-  });
-  
-  const url = `https://marknad.studentbostader.se/widgets/?${query}`;
-  
-  return fetch(url)
+function jsonp(url, params, callbackParam = 'callback') {
+  const callbackName = 'callback';
+  const query = Object.assign({}, params, { [callbackParam]: callbackName });
+  return fetch(`${url}?${querystring.stringify(query)}`)
     .then(response => response.text())
-    .then(text => {
-      const json = JSON.parse(text.slice(1, -2));
+    .then(text => new Promise(resolve => {
+      vm.runInNewContext(text, { [callbackName]: resolve });
+    }));
+}
+
+(function findApartments() {
+   return jsonp('https://marknad.studentbostader.se/widgets/', {
+     egenskaper: 'SNABB',
+     'widgets[]': 'objektlista@lagenheter'
+   })
+    .then(json => {
       const apartments = json.data['objektlista@lagenheter'];
 
       return apartments.filter(apartment => {
@@ -109,3 +109,9 @@ if (GOOGLE_SERVER_KEY) {
     .catch(err => console.error(err))
     .then(() => setTimeout(findApartments, 1000 * INTERVAL));
 })();
+
+
+function findApartments() {
+
+
+}
