@@ -1,10 +1,3 @@
-# apartmentor
-
-Search for apartments on Studentbostäder.
-
-## API
-
-```typescript
 export function search(options?: { cache?: boolean; googleKey?: string; }): Promise<Apartment[]>;
 
 export interface Apartment {
@@ -36,4 +29,3 @@ export interface Apartment {
   inflyttningDatum: string;
   publiceratDatum: string;
 }
-```

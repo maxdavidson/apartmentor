@@ -1,7 +1,7 @@
 {
   "name": "apartmentor",
   "version": "0.0.1",
-  "description": "Search for apartments on Studentbostäder, and get notified via IFTTT",
+  "description": "Search for apartments on Studentbostäder",
   "author": "Max Davidson <davidsonmax@gmail.com>",
   "license": "MIT",
   "repository": {
@@ -9,9 +9,17 @@
     "url": "https://github.com/maxdavidson/apartmentor.git"
   },
   "main": "index.js",
+  "bin": "bin/apartmentor.js",
+  "typings": "index.d.ts",
+  "engineStrict": true,
   "engines": {
     "node": ">=6.4.0"
   },
+  "keywords": [
+    "studentbostäder",
+    "linköping",
+    "api"
+  ],
   "dependencies": {
     "goo.gl": "^0.1.4",
     "node-fetch": "^1.6.0",
