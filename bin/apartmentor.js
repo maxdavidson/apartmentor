@@ -1,4 +1,4 @@
-#! /usr/bin/env node
+#!/usr/bin/env node
 /* eslint-disable max-len, consistent-return, no-console */
 const yargs = require('yargs');
 const fetch = require('node-fetch');
