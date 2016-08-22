@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-/* eslint-disable max-len, consistent-return, no-console */
+/* eslint-disable max-len, consistent-return, no-console, no-param-reassign */
 const yargs = require('yargs');
 const fetch = require('node-fetch');
+const flatCache = require('flat-cache');
 const { search } = require('..');
 
 const { argv } = yargs
@@ -12,11 +13,16 @@ const { argv } = yargs
       default: 60,
       type: 'number',
     },
+    cache: {
+      describe: 'Cache results between runs',
+      default: false,
+      type: 'boolean',
+    },
   })
   .help('h')
   .alias('h', 'help');
 
-const { i: INTERVAL } = argv;
+const { cache, i: INTERVAL } = argv;
 const { GOOGLE_SERVER_KEY, IFTTT_KEY } = process.env;
 
 function wait(ms) {
@@ -25,8 +31,40 @@ function wait(ms) {
   });
 }
 
+let cacheStorage;
+
 (function run() {
-  return search({ cache: true, googleKey: GOOGLE_SERVER_KEY })
+  return search({ googleKey: GOOGLE_SERVER_KEY })
+    .then(apartments => {
+      if (cache) {
+        if (cacheStorage === undefined) {
+          cacheStorage = flatCache.load('apartmentor');
+        }
+        apartments = apartments.filter(apartment => {
+          if (cacheStorage.getKey(apartment.refid) == null) {
+            cacheStorage.setKey(apartment.refid, apartment);
+            return true;
+          }
+          return false;
+        });
+        cacheStorage.save();
+      }
+
+      // Fall back to object storage
+      if (cacheStorage === undefined) {
+        cacheStorage = Object.create(null);
+      }
+
+      apartments = apartments.filter(apartment => {
+        if (!(apartment.refid in cacheStorage)) {
+          cacheStorage[apartment.refid] = apartment;
+          return true;
+        }
+        return false;
+      });
+
+      return apartments;
+    })
     .then(apartments => {
       console.log(`${new Date().toLocaleString('sv-SE')}: Hittade ${apartments.length} st nya lediga lägenheter`);
 
