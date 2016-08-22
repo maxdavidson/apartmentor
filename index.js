@@ -20,7 +20,7 @@ let cacheStorage;
 function search({ cache = false, googleKey } = {}) {
   return jsonp('https://marknad.studentbostader.se/widgets/', {
     egenskaper: 'SNABB',
-    'widgets[]': 'objektlista@lagenheter'
+    'widgets[]': 'objektlista@lagenheter',
   }).then(json => {
     let apartments = json.data['objektlista@lagenheter'];
 
@@ -36,7 +36,7 @@ function search({ cache = false, googleKey } = {}) {
         return false;
       });
     }
-    
+
     if (googleKey && apartments.length > 0) {
       googl.setKey(googleKey);
       return Promise.all(apartments.map(apartment =>
