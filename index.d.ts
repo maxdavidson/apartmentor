@@ -1,4 +1,4 @@
-export function search(options?: { cache?: boolean; googleKey?: string; }): Promise<Apartment[]>;
+export function search(options?: { googleKey?: string; }): Promise<Apartment[]>;
 
 export interface Apartment {
   refid: string;
