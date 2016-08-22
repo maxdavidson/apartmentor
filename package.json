@@ -21,7 +21,9 @@
     "lint": "eslint --ignore-path .gitignore .",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "pretest": "npm run clean",
-    "posttest": "npm run lint"
+    "posttest": "npm run lint",
+    "preversion": "npm test",
+    "postversion": "git push && git push --tags && npm publish"
   },
   "keywords": [
     "studentbostäder",
