@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
-const querystring = require('querystring');
-const vm = require('vm');
+const { runInNewContext } = require('vm');
+const { parse, format } = require('url');
 
 function wait(ms) {
   return new Promise(resolve => {
@@ -8,14 +8,17 @@ function wait(ms) {
   });
 }
 
-// Not very fast, but reasonably safe, jsonp
 function jsonp(url, params, callbackParam = 'callback') {
   const callbackName = 'callback';
-  const query = Object.assign({}, params, { [callbackParam]: callbackName });
-  return fetch(`${url}?${querystring.stringify(query)}`)
+
+  const urlParts = parse(url, true);
+  Object.assign(urlParts.query, params, { [callbackParam]: callbackName });
+  const newUrl = format(urlParts);
+
+  return fetch(newUrl)
     .then(response => response.text())
     .then(text => new Promise(resolve => {
-      vm.runInNewContext(text, { [callbackName]: resolve });
+      runInNewContext(text, { [callbackName]: resolve });
     }));
 }
 
