@@ -22,11 +22,16 @@ const { argv } = yargs
       default: false,
       type: 'boolean',
     },
+    once: {
+      desribe: 'Run once, the exit',
+      default: false,
+      type: 'boolean',
+    },
   })
   .alias('v', 'version')
   .alias('h', 'help');
 
-const { c: CACHE, i: INTERVAL } = argv;
+const { once, c: CACHE, i: INTERVAL } = argv;
 const { GOOGLE_SERVER_KEY, IFTTT_KEY } = process.env;
 
 let cacheStorage;
@@ -107,7 +112,17 @@ let cacheStorage;
         }
       }
     })
-    .catch(console.error)
+    .catch(reason => {
+      console.error(reason);
+      if (once) {
+        process.exit(1);
+      }
+    })
+    .then(() => {
+      if (once) {
+        process.exit(0);
+      }
+    })
     .then(() => wait(1000 * INTERVAL))
     .then(run);
 }());
