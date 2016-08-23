@@ -93,13 +93,13 @@ let cacheStorage;
           const url = `https://maker.ifttt.com/trigger/${event}/with/key/${IFTTT_KEY}`;
 
           return Promise.all(apartments.map(apartment => {
-            const { adress, hyra, hyraEnhet, yta, typ, inflyttningDatum, shortUrl, detaljUrl, poang } = apartment;
-            const message = `Bostad direkt: ${typ} ${yta} m2. ${adress}. ${poang}. ${hyra.replace(/\s+/g, '')} ${hyraEnhet}. ${inflyttningDatum}. ${shortUrl || detaljUrl}. 013-20 86 60.`;
+            const { adress, hyra, hyraEnhet, yta, typ, inflyttningDatum, kortUrl, detaljUrl, poang } = apartment;
+            const message = `Bostad direkt: ${typ} ${yta} m2. ${adress}. ${poang}. ${hyra.replace(/\s+/g, '')} ${hyraEnhet}. ${inflyttningDatum}. ${kortUrl || detaljUrl}. 013-20 86 60.`;
 
             const payload = {
               value1: message,
               value2: adress,
-              value3: shortUrl || detaljUrl,
+              value3: kortUrl || detaljUrl,
             };
 
             return fetch(url, {
