@@ -8,20 +8,20 @@
     "type": "git",
     "url": "https://github.com/maxdavidson/apartmentor.git"
   },
-  "main": "index.js",
-  "bin": "bin/apartmentor.js",
-  "typings": "index.d.ts",
+  "main": "dist/index.js",
+  "bin": "dist/cli.js",
+  "typings": "dist/index.d.ts",
   "engineStrict": true,
   "engines": {
     "node": ">=6.4.0"
   },
   "scripts": {
+    "build": "tsc",
     "test": "nyc --reporter=text --reporter=html ava",
-    "clean": "rm -rf coverage",
-    "lint": "eslint --ignore-path .gitignore .",
+    "clean": "rm -rf coverage dist",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
-    "pretest": "npm run clean",
-    "posttest": "npm run lint",
+    "prebuild": "npm run clean",
+    "pretest": "npm run build",
     "preversion": "npm test",
     "postversion": "git push && git push --tags && npm publish"
   },
@@ -37,11 +37,11 @@
     "yargs": "^5.0.0"
   },
   "devDependencies": {
+    "@types/node": "^6.0.37",
+    "@types/node-fetch": "0.0.2",
+    "@types/yargs": "0.0.29",
     "ava": "^0.16.0",
-    "coveralls": "^2.11.12",
-    "eslint": "^3.3.1",
-    "eslint-config-airbnb-base": "^5.0.3",
-    "eslint-plugin-import": "^1.13.0",
-    "nyc": "^8.1.0"
+    "nyc": "^8.1.0",
+    "typescript": "^2.0.0"
   }
 }
