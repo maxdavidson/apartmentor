@@ -6,6 +6,8 @@ const flatCache = require('flat-cache');
 const { search } = require('./index');
 
 const { argv } = yargs
+  .version()
+  .help()
   .option({
     i: {
       alias: 'interval',
@@ -13,16 +15,18 @@ const { argv } = yargs
       default: 60,
       type: 'number',
     },
-    cache: {
+    c: {
+      alias: 'cache',
       describe: 'Cache results between runs',
       default: false,
       type: 'boolean',
     },
   })
-  .help('h')
+  .alias('v', 'version')
   .alias('h', 'help');
 
-const { cache, i: INTERVAL } = argv;
+
+const { c: CACHE, i: INTERVAL } = argv;
 const { GOOGLE_SERVER_KEY, IFTTT_KEY } = process.env;
 
 function wait(ms) {
@@ -36,10 +40,11 @@ let cacheStorage;
 (function run() {
   return search({ googleKey: GOOGLE_SERVER_KEY })
     .then(apartments => {
-      if (cache) {
+      if (CACHE) {
         if (cacheStorage === undefined) {
           cacheStorage = flatCache.load('apartmentor');
         }
+
         apartments = apartments.filter(apartment => {
           if (cacheStorage.getKey(apartment.refid) == null) {
             cacheStorage.setKey(apartment.refid, apartment);
