@@ -53,20 +53,20 @@ let cacheStorage;
           return false;
         });
         cacheStorage.save();
-      }
-
-      // Fall back to object storage
-      if (cacheStorage === undefined) {
-        cacheStorage = Object.create(null);
-      }
-
-      apartments = apartments.filter(apartment => {
-        if (!(apartment.refid in cacheStorage)) {
-          cacheStorage[apartment.refid] = apartment;
-          return true;
+      } else {
+        // Fall back to object storage
+        if (cacheStorage === undefined) {
+          cacheStorage = Object.create(null);
         }
-        return false;
-      });
+
+        apartments = apartments.filter(apartment => {
+          if (!(apartment.refid in cacheStorage)) {
+            cacheStorage[apartment.refid] = apartment;
+            return true;
+          }
+          return false;
+        });
+      }
 
       return apartments;
     })
