@@ -3,7 +3,7 @@
 const yargs = require('yargs');
 const fetch = require('node-fetch');
 const flatCache = require('flat-cache');
-const { search } = require('..');
+const { search } = require('./index');
 
 const { argv } = yargs
   .option({

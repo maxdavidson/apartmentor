@@ -8,9 +8,9 @@
     "type": "git",
     "url": "https://github.com/maxdavidson/apartmentor.git"
   },
-  "main": "index.js",
-  "bin": "bin/apartmentor.js",
-  "typings": "index.d.ts",
+  "main": "src/index.js",
+  "bin": "src/cli.js",
+  "typings": "typings.d.ts",
   "engineStrict": true,
   "engines": {
     "node": ">=6.4.0"
@@ -29,6 +29,10 @@
     "studentbostäder",
     "linköping",
     "api"
+  ],
+  "files": [
+    "src",
+    "typings.d.ts"
   ],
   "dependencies": {
     "flat-cache": "^1.2.1",
