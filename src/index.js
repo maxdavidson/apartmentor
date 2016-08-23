@@ -1,18 +1,5 @@
-const fetch = require('node-fetch');
 const googl = require('goo.gl');
-const querystring = require('querystring');
-const vm = require('vm');
-
-// Not very fast, but reasonably safe, jsonp
-function jsonp(url, params, callbackParam = 'callback') {
-  const callbackName = 'callback';
-  const query = Object.assign({}, params, { [callbackParam]: callbackName });
-  return fetch(`${url}?${querystring.stringify(query)}`)
-    .then(response => response.text())
-    .then(text => new Promise(resolve => {
-      vm.runInNewContext(text, { [callbackName]: resolve });
-    }));
-}
+const { jsonp } = require('./utils');
 
 function search({ googleKey } = {}) {
   return jsonp('https://marknad.studentbostader.se/widgets/', {

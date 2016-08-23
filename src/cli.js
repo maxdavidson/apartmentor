@@ -4,6 +4,7 @@ const yargs = require('yargs');
 const fetch = require('node-fetch');
 const flatCache = require('flat-cache');
 const { search } = require('./index');
+const { wait } = require('./utils');
 
 const { argv } = yargs
   .version()
@@ -25,15 +26,8 @@ const { argv } = yargs
   .alias('v', 'version')
   .alias('h', 'help');
 
-
 const { c: CACHE, i: INTERVAL } = argv;
 const { GOOGLE_SERVER_KEY, IFTTT_KEY } = process.env;
-
-function wait(ms) {
-  return new Promise(resolve => {
-    setTimeout(resolve, ms);
-  });
-}
 
 let cacheStorage;
 
