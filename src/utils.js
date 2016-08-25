@@ -1,12 +1,7 @@
+'use strict';
 const fetch = require('node-fetch');
 const { runInNewContext } = require('vm');
 const { parse, format } = require('url');
-
-function wait(ms) {
-  return new Promise(resolve => {
-    setTimeout(resolve, ms);
-  });
-}
 
 function jsonp(url, params, callbackParam = 'callback') {
   const callbackName = 'callback';
@@ -22,4 +17,4 @@ function jsonp(url, params, callbackParam = 'callback') {
     }));
 }
 
-module.exports = { jsonp, wait };
+module.exports = { jsonp };

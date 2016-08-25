@@ -1,23 +1,24 @@
-const googl = require('goo.gl');
+'use strict';
+const { Observable } = require('rxjs');
 const { jsonp } = require('./utils');
 
-function search({ googleKey } = {}) {
+const MAX_RESULTS = 1000;
+
+function search() {
   return jsonp('https://marknad.studentbostader.se/widgets/', {
-    egenskaper: 'SNABB',
     'widgets[]': 'objektlista@lagenheter',
-  }).then(json => {
-    const apartments = json.data['objektlista@lagenheter'];
-
-    if (googleKey && apartments.length > 0) {
-      googl.setKey(googleKey);
-      return Promise.all(apartments.map(apartment =>
-        googl.shorten(apartment.detaljUrl)
-          .then(kortUrl => Object.assign({}, apartment, { kortUrl })))
-      );
-    }
-
-    return apartments;
-  });
+    paginationantal: MAX_RESULTS,
+  })
+  .then(json => json.data['objektlista@lagenheter']);
 }
 
-module.exports = { search };
+function searchContinuously(interval = 60 * 1000) {
+  const seen = new Set();
+  return Observable
+    .interval(interval)
+    .startWith(0)
+    .mergeMap(() => Observable.fromPromise(search())
+    .map(items => items.filter(item => !seen.has(item.refid) && seen.add(item.refid))));
+}
+
+module.exports = { search, searchContinuously };

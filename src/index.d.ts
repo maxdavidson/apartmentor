@@ -1,9 +1,11 @@
-export function search(options?: { googleKey?: string; }): Promise<Apartment[]>;
+export function search(): Promise<Apartment[]>;
+export function searchContinuously(): Observable<Apartment[]>;
 
 export interface Apartment {
   refid: string;
   typ: string;
   adress: string;
+  antalVaningar: string;
   omrade: string;
   omradeKod: string;
   yta: number;
@@ -27,5 +29,6 @@ export interface Apartment {
   kortUrl?: string;
   fritext: string;
   inflyttningDatum: string;
+  inflyttningDatumLabel: string;
   publiceratDatum: string;
 }

@@ -1,9 +1,18 @@
-const test = require('ava');
-const { search } = require('..');
+import test from 'ava';
+import { search, searchContinuously } from '..';
 
 test('it makes a request', t =>
   search()
-    .then(apartments => {
-      t.true(Array.isArray(apartments));
+    .then(items => {
+      t.true(Array.isArray(items));
+    })
+);
+
+test('it subscribes to a stream', t =>
+  searchContinuously()
+    .take(1)
+    .toPromise()
+    .then(items => {
+      t.true(Array.isArray(items));
     })
 );

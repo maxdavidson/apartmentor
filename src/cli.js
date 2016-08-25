@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-/* eslint-disable max-len, consistent-return, no-console, no-param-reassign */
+/* eslint-disable max-len, consistent-return, no-console, no-param-reassign, no-new-func */
+'use strict';
 const yargs = require('yargs');
 const fetch = require('node-fetch');
-const flatCache = require('flat-cache');
-const { search } = require('./index');
-const { wait } = require('./utils');
+const { Observable } = require('rxjs');
+const { searchContinuously } = require('./index');
 
 const { argv } = yargs
   .version()
@@ -12,117 +12,96 @@ const { argv } = yargs
   .option({
     i: {
       alias: 'interval',
-      describe: 'Interval in seconds between API calls',
-      default: 60,
+      describe: 'Interval between API calls (ms)',
+      default: 60 * 1000,
       type: 'number',
     },
-    c: {
-      alias: 'cache',
-      describe: 'Cache results between runs',
+    once: {
+      describe: 'Run once, then exit',
       default: false,
       type: 'boolean',
     },
-    once: {
-      desribe: 'Run once, the exit',
+    ifttt: {
+      describe: 'Send results to IFTTT',
       default: false,
       type: 'boolean',
+    },
+    query: {
+      describe: 'JavaScript expression to select which items to include',
+      type: 'string',
+      default: 'true',
     },
   })
   .alias('v', 'version')
   .alias('h', 'help');
 
-const { once, c: CACHE, i: INTERVAL } = argv;
-const { GOOGLE_SERVER_KEY, IFTTT_KEY } = process.env;
+const { IFTTT_KEY } = process.env;
+const { interval, once, ifttt, query } = argv;
 
-let cacheStorage;
+function createFilter(dslString) {
+  return new Function('item', `
+    with (item) {
+      return ${dslString};
+    }
+  `);
+}
 
-(function run() {
-  return search({ googleKey: GOOGLE_SERVER_KEY })
-    .then(apartments => {
-      if (CACHE) {
-        if (cacheStorage === undefined) {
-          cacheStorage = flatCache.load('apartmentor');
-        }
+const filter = createFilter(query);
 
-        apartments = apartments.filter(apartment => {
-          if (cacheStorage.getKey(apartment.refid) == null) {
-            cacheStorage.setKey(apartment.refid, apartment);
-            return true;
-          }
-          return false;
-        });
-        cacheStorage.save();
-      } else {
-        // Fall back to object storage
-        if (cacheStorage === undefined) {
-          cacheStorage = Object.create(null);
-        }
+searchContinuously(interval)
+  .retryWhen(attempts => {
+    if (once) {
+      return attempts.mergeMap(Observable.throw);
+    }
+    return attempts.do(console.error).mergeMapTo(Observable.timer(interval));
+  })
+  .take(once ? 1 : Infinity)
+  .map(items => items.filter(filter))
+  .timestamp()
+  .do(({ timestamp, value: items }) => {
+    console.log(`${new Date(timestamp).toLocaleString('sv-SE')}: ${items.length} st nya lägenheter hittades`);
+  })
+  .mergeMap(({ value: items }) => Observable.from(items))
+  .do(item => {
+    const message = [
+      `ID: ${item.refid}`,
+      `Typ: ${item.typ}`,
+      `Egenskaper: ${item.egenskaper.map(egenskap => egenskap.beskrivning).join(', ')}`,
+      `Poäng: ${item.poang}`,
+      `Område: ${item.omrade}`,
+      `Hyra: ${item.hyra} ${item.hyraEnhet}`,
+      `Adress: ${item.adress}`,
+      `Våning: ${item.vaning}${(item.antalVaningar == null) ? '' : ` av ${item.antalVaningar}`}`,
+      `${item.inflyttningDatumLabel}: ${item.inflyttningDatum}`,
+      `Publicerades: ${item.publiceratDatum}`,
+      `Länk: ${item.detaljUrl}`,
+    ].join('\n');
 
-        apartments = apartments.filter(apartment => {
-          if (!(apartment.refid in cacheStorage)) {
-            cacheStorage[apartment.refid] = apartment;
-            return true;
-          }
-          return false;
-        });
+    console.log(message);
+    console.log();
+
+    if (ifttt) {
+      if (IFTTT_KEY === undefined) {
+        console.error('The environment variable IFTTT_KEY was not detected');
+        return;
       }
 
-      return apartments;
-    })
-    .then(apartments => {
-      console.log(`${new Date().toLocaleString('sv-SE')}: Hittade ${apartments.length} st nya lediga lägenheter`);
+      const event = 'apartmentor';
+      const url = `https://maker.ifttt.com/trigger/${event}/with/key/${IFTTT_KEY}`;
 
-      if (apartments.length > 0) {
-        for (const { refid, adress, hyra, hyraEnhet, typ, inflyttningDatum, publiceratDatum, detaljUrl, kortUrl, poang } of apartments) {
-          console.log(`ID: ${refid}`);
-          console.log(`Typ: ${typ}`);
-          console.log(`Poäng: ${poang}`);
-          console.log(`Hyra: ${hyra} ${hyraEnhet}`);
-          console.log(`Adress: ${adress}`);
-          console.log(`Inflyttning: ${inflyttningDatum}`);
-          console.log(`Publicerat: ${publiceratDatum}`);
-          console.log(`Länk: ${detaljUrl}`);
-          console.log(`Kort länk: ${kortUrl}`);
-          console.log();
-        }
+      const payload = {
+        value1: message,
+        value2: item.adress,
+        value3: item.detaljUrl,
+      };
 
-        if (IFTTT_KEY) {
-          console.info('Pushar till IFTTT...');
-          const event = 'apartmentor';
-          const url = `https://maker.ifttt.com/trigger/${event}/with/key/${IFTTT_KEY}`;
-
-          return Promise.all(apartments.map(apartment => {
-            const { adress, hyra, hyraEnhet, yta, typ, inflyttningDatum, kortUrl, detaljUrl, poang } = apartment;
-            const message = `Bostad direkt: ${typ} ${yta} m2. ${adress}. ${poang}. ${hyra.replace(/\s+/g, '')} ${hyraEnhet}. ${inflyttningDatum}. ${kortUrl || detaljUrl}. 013-20 86 60.`;
-
-            const payload = {
-              value1: message,
-              value2: adress,
-              value3: kortUrl || detaljUrl,
-            };
-
-            return fetch(url, {
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              method: 'POST',
-              body: JSON.stringify(payload),
-            });
-          }));
-        }
-      }
-    })
-    .catch(reason => {
-      console.error(reason);
-      if (once) {
-        process.exit(1);
-      }
-    })
-    .then(() => {
-      if (once) {
-        process.exit(0);
-      }
-    })
-    .then(() => wait(1000 * INTERVAL))
-    .then(run);
-}());
+      fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+    }
+  })
+  .subscribe();

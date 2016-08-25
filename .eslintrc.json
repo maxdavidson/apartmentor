@@ -3,5 +3,8 @@
   "extends": "airbnb-base",
   "env": {
     "node": true
-  }
+  },
+  "rules": {
+    "strict": 0
+  } 
 }

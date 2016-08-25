@@ -10,13 +10,14 @@
   },
   "main": "src/index.js",
   "bin": "src/cli.js",
-  "typings": "typings.d.ts",
+  "typings": "src/index.d.ts",
   "engineStrict": true,
   "engines": {
     "node": ">=6.4.0"
   },
   "scripts": {
     "test": "nyc --reporter=text --reporter=html ava",
+    "start": "node src/cli.js",
     "clean": "rm -rf coverage",
     "lint": "eslint --ignore-path .gitignore .",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
@@ -31,13 +32,11 @@
     "api"
   ],
   "files": [
-    "src",
-    "typings.d.ts"
+    "src"
   ],
   "dependencies": {
-    "flat-cache": "^1.2.1",
-    "goo.gl": "^0.1.4",
     "node-fetch": "^1.6.0",
+    "rxjs": "^5.0.0-beta.11",
     "yargs": "^5.0.0"
   },
   "devDependencies": {
