@@ -5,6 +5,7 @@
     "node": true
   },
   "rules": {
-    "strict": 0
-  } 
+    "strict": 0,
+    "arrow-parens": 0
+  }
 }
