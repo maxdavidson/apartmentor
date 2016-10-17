@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 /* eslint-disable max-len, consistent-return, no-console, no-param-reassign, no-new-func */
+
 'use strict';
+
 const yargs = require('yargs');
 const fetch = require('node-fetch');
 const { Observable } = require('rxjs');
