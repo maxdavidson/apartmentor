@@ -1,4 +1,5 @@
 'use strict';
+
 const { Observable } = require('rxjs');
 const { jsonp } = require('./utils');
 

@@ -1,4 +1,5 @@
 'use strict';
+
 const fetch = require('node-fetch');
 const { runInNewContext } = require('vm');
 const { parse, format } = require('url');
