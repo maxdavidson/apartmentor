@@ -5,7 +5,7 @@ test('it makes a request', t =>
   search()
     .then(items => {
       t.true(Array.isArray(items));
-    })
+    }),
 );
 
 test('it subscribes to a stream', t =>
@@ -14,5 +14,5 @@ test('it subscribes to a stream', t =>
     .toPromise()
     .then(items => {
       t.true(Array.isArray(items));
-    })
+    }),
 );
