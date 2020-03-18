@@ -1,4 +1,4 @@
-import {take} from 'rxjs/operators'
+import { take } from 'rxjs/operators';
 import test from 'ava';
 import { search, searchContinuously } from '..';
 

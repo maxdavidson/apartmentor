@@ -3,8 +3,8 @@
 
 'use strict';
 
-const {throwError, timer, from} = require('rxjs');
-const {mergeMap, tap, mergeMapTo, retryWhen, take, map, timestamp: rxjsTimestamp} = require('rxjs/operators');
+const { throwError, timer, from } = require('rxjs');
+const { mergeMap, tap, mergeMapTo, retryWhen, take, map, timestamp: rxjsTimestamp } = require('rxjs/operators');
 
 const yargs = require('yargs');
 const fetch = require('node-fetch');
@@ -52,14 +52,21 @@ function createFilter(dslString) {
 
 const filter = createFilter(query);
 
-searchContinuously(interval).pipe(retryWhen(attempts => {
+searchContinuously(interval).pipe(
+  retryWhen(attempts => {
     if (once) {
       return attempts.pipe(mergeMap(throwError));
     }
     return attempts.pipe(tap(console.error), mergeMapTo(timer(interval)));
-  }), take(once ? 1 : Infinity), map(items => items.filter(filter)), rxjsTimestamp(), tap(({ timestamp, value: items }) => {
+  }),
+  take(once ? 1 : Infinity),
+  map(items => items.filter(filter)),
+  rxjsTimestamp(),
+  tap(({ timestamp, value: items }) => {
     console.log(`${new Date(timestamp).toLocaleString('sv-SE')}: ${items.length} st nya lägenheter hittades`);
-  }), mergeMap(({ value: items }) => from(items)), tap(item => {
+  }),
+  mergeMap(({ value: items }) => from(items)),
+  tap(item => {
     const message = [
       `ID: ${item.refid}`,
       `Typ: ${item.typ}`,
