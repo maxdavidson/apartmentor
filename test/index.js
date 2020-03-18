@@ -1,3 +1,4 @@
+import { take } from 'rxjs/operators';
 import test from 'ava';
 import { search, searchContinuously } from '..';
 
@@ -9,8 +10,7 @@ test('it makes a request', t =>
 );
 
 test('it subscribes to a stream', t =>
-  searchContinuously()
-    .take(1)
+  searchContinuously().pipe(take(1))
     .toPromise()
     .then(items => {
       t.true(Array.isArray(items));
